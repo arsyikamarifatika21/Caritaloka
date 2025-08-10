@@ -166,26 +166,42 @@ with col1:
 
     input_method = st.radio("Pilih Metode:", ["Upload Gambar", "Ambil dari Kamera"])
 
-    image = None
-    if input_method == "Upload Gambar":
-        uploaded_file = st.file_uploader("Unggah gambar batik (.png/ lokatmala.png)", type=["png", "jpeg", "png"])
-        if uploaded_file is not None:
-            try:
-                image = Image.open(uploaded_file)
-            except Exception as e:
-                st.error(f"Gagal membuka gambar upload: {e}")
-                image = None
-    else:
-        camera_image = st.camera_input("Ambil gambar dari kamera")
-        if camera_image is not None:
-            try:
-                image = Image.open(camera_image)
-            except Exception as e:
-                st.error(f"Gagal membuka gambar dari kamera: {e}")
-                image = None
+from PIL import Image, UnidentifiedImageError
 
-    if image is not None:
-        st.image(image, caption="Gambar telah di identifikasi", use_container_width=True)
+image = None
+
+if input_method == "Upload Gambar":
+    uploaded_file = st.file_uploader("Unggah gambar batik (.png/ lokatmala.png)", type=["png", "jpeg", "jpg"])
+    if uploaded_file is not None:
+        try:
+            image = Image.open(uploaded_file)
+            image.verify()  # Validasi image
+            uploaded_file.seek(0)  # Reset pointer setelah verify
+            image = Image.open(uploaded_file)  # reload image setelah verify
+        except UnidentifiedImageError:
+            st.error("File yang diunggah bukan gambar yang valid.")
+            image = None
+        except Exception as e:
+            st.error(f"Gagal membuka gambar upload: {e}")
+            image = None
+else:
+    camera_image = st.camera_input("Ambil gambar dari kamera")
+    if camera_image is not None:
+        try:
+            image = Image.open(camera_image)
+            image.verify()
+            camera_image.seek(0)
+            image = Image.open(camera_image)
+        except UnidentifiedImageError:
+            st.error("Gambar kamera tidak valid.")
+            image = None
+        except Exception as e:
+            st.error(f"Gagal membuka gambar dari kamera: {e}")
+            image = None
+
+if image is not None:
+    st.image(image, caption="Gambar telah di identifikasi", use_container_width=True)
+
 
 with col2:
     st.subheader("Hasil Prediksi")
@@ -243,3 +259,4 @@ st.markdown(
 
 # -------------------- Footer --------------------
 st.markdown("""<div class="footer">© 2025 Caritaloka - All rights reserved</div>""", unsafe_allow_html=True)
+
