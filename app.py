@@ -158,73 +158,88 @@ filosofi_dict = {
     "Wijayakusumah": "Pola hias batik Wijayakusumah terinspirasi dari bunga wijayakusuma (Epiphyllum oxypetalum), yang dikenal dengan keindahannya dan keunikan mekarnya hanya pada malam hari. Bunga ini menjadi simbol keabadian, keindahan yang tersembunyi, dan misteri alam. Pola hias ini juga mengandung pesan tentang harapan, kesabaran, dan keyakinan bahwa keindahan akan muncul pada waktunya."
 }
 
-# -------------------- Fungsi Prediksi --------------------
-def predict(image: Image.Image):
-    # Resize ke 224x224
-    img_resized = image.resize((224, 224))
-    img_array = np.array(img_resized) / 255.0  # Normalisasi piksel 0-1
-    img_array = np.expand_dims(img_array, axis=0)  # Bentuk batch (1, 224, 224, 3)
-
-    preds = model.predict(img_array)
-    pred_idx = np.argmax(preds)
-    confidence = preds[0][pred_idx]
-    class_name = class_names[pred_idx]
-
-    return class_name, confidence
-
-
-# -------------------- UI --------------------
-st.title("Identifikasi Motif Batik Lokatmala Sukabumi")
-
-st.markdown("### Upload atau ambil gambar batik untuk dilakukan identifikasi motif dan filosofi")
-
+# -------------------- Layout Dua Kolom --------------------
 col1, col2 = st.columns(2)
 
-image = None
-upload_error = None
-camera_error = None
-
 with col1:
-    uploaded_file = st.file_uploader("Unggah gambar batik (.png, .jpeg)", type=["png", "jpeg", "jpg"])
-    if uploaded_file is not None:
-        try:
-            image = Image.open(uploaded_file)
-            st.success("Gambar berhasil diunggah")
-            st.write(f"Tipe gambar: {type(image)}")  # Debug tipe gambar
-        except Exception as e:
-            upload_error = e
-            st.error(f"Gagal membuka gambar upload: {e}")
+    st.subheader("Input Gambar")
+
+    input_method = st.radio("Pilih Metode:", ["Upload Gambar", "Ambil dari Kamera"])
+
+    image = None
+    if input_method == "Upload Gambar":
+        uploaded_file = st.file_uploader("Unggah gambar batik (.png/ lokatmala.png)", type=["png", "jpeg", "png"])
+        if uploaded_file is not None:
+            try:
+                image = Image.open(uploaded_file)
+            except Exception as e:
+                st.error(f"Gagal membuka gambar upload: {e}")
+                image = None
+    else:
+        camera_image = st.camera_input("Ambil gambar dari kamera")
+        if camera_image is not None:
+            try:
+                image = Image.open(camera_image)
+            except Exception as e:
+                st.error(f"Gagal membuka gambar dari kamera: {e}")
+                image = None
+
+    if image is not None:
+        st.image(image, caption="Gambar telah di identifikasi", use_container_width=True)
 
 with col2:
-    camera_image = st.camera_input("Ambil gambar dari kamera")
-    if camera_image is not None:
+    st.subheader("Hasil Prediksi")
+
+    if image is not None:
         try:
-            image = Image.open(camera_image)
-            st.success("Gambar berhasil diambil dari kamera")
-            st.write(f"Tipe gambar: {type(image)}")  # Debug tipe gambar
+            img_resized = image.resize((224, 224))
+            img_array = np.expand_dims(np.array(img_resized) / 255.0, axis=0)
+
+            prediction = model.predict(img_array)
+            predicted_class = class_names[np.argmax(prediction)]
+            confidence = np.max(prediction) * 100
+            filosofi = filosofi_dict.get(predicted_class, "Filosofi tidak ditemukan.")
+
+            st.markdown(
+                f"<div style='font-size: 1.2em;'><strong>Motif Terdeteksi:</strong> {predicted_class}</div>",
+                unsafe_allow_html=True,
+            )
+            st.markdown(
+                f"<div style='font-size: 1em; color: gray;'><strong>Tingkat Keyakinan:</strong> {confidence:.2f}%</div>",
+                unsafe_allow_html=True,
+            )
+
+            if confidence < 70:
+                st.warning(
+                    "⚠️ Keyakinan rendah. Silakan coba ulang dengan gambar yang lebih baik, dengan memperhatikan spesifikasi sebagai berikut:\n"
+                    "- Gunakan gambar batik yang fokus dan jelas.\n"
+                    "- Hindari kain terlipat atau kusut.\n"
+                    "- Jangan gunakan latar belakang yang ramai.\n"
+                    "- Ambil gambar dari jarak sedang, tidak terlalu dekat atau jauh.\n"
+                    "- Pastikan pencahayaan cukup dan merata."
+                )
+            st.markdown(
+                "<hr style='margin-top: 20px; margin-bottom: 10px;'>", unsafe_allow_html=True
+            )
+            st.markdown(
+                f"<div style='text-align: justify; font-size: 0.95em; line-height: 1.7;'><strong>Filosofi Motif:</strong><br>{filosofi}</div>",
+                unsafe_allow_html=True,
+            )
         except Exception as e:
-            camera_error = e
-            st.error(f"Gagal membuka gambar dari kamera: {e}")
+            st.error(f"Terjadi kesalahan saat memproses gambar: {e}")
+    else:
+        st.info("Silakan unggah atau ambil gambar terlebih dahulu.")
 
-# Kalau ada error upload/kamera, jangan lanjut prediksi
-if upload_error or camera_error:
-    st.warning("Perbaiki error gambar sebelum melakukan prediksi.")
+# -------------------- Copyright Footer --------------------
+st.markdown(
+    """
+    <div class="footer">
+        © 2025 Batik Lokatmala 
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
-# Jika ada gambar valid, tampilkan dan prediksi
-if image is not None:
-    try:
-        st.image(image, caption="Gambar telah diidentifikasi", use_container_width=True)
-    except Exception as e:
-        st.error(f"Error menampilkan gambar: {e}")
-
-    try:
-        class_name, confidence = predict(image)
-        st.markdown(f"### Hasil Prediksi: **{class_name}**")
-        st.markdown(f"**Tingkat Kepercayaan:** {confidence:.2f}")
-        filosofi = filosofi_dict.get(class_name, "Filosofi tidak tersedia.")
-        st.markdown(f"**Filosofi:** {filosofi}")
-    except Exception as e:
-        st.error(f"Error saat prediksi: {e}")
 
 # -------------------- Footer --------------------
 st.markdown("""<div class="footer">© 2025 Caritaloka - All rights reserved</div>""", unsafe_allow_html=True)
