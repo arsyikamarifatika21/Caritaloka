@@ -167,56 +167,28 @@ with col1:
 
     input_method = st.radio("Pilih Metode:", ["Upload Gambar", "Ambil dari Kamera"])
 
-from PIL import Image, UnidentifiedImageError
-
-image = None
-
-if input_method == "Upload Gambar":
-    uploaded_file = st.file_uploader("Unggah gambar batik (.png/ lokatmala.png)", type=["png", "jpeg", "jpg"])
-    if uploaded_file is not None:
-        try:
+    image = None
+    if input_method == "Upload Gambar":
+        uploaded_file = st.file_uploader("Unggah gambar batik (.png/ lokatmala.png)", type=["png", "jpeg", "png"])
+        if uploaded_file:
             image = Image.open(uploaded_file)
-            image.verify()  # Validasi image
-            uploaded_file.seek(0)  # Reset pointer setelah verify
-            image = Image.open(uploaded_file)  # reload image setelah verify
-        except UnidentifiedImageError:
-            st.error("File yang diunggah bukan gambar yang valid.")
-            image = None
-        except Exception as e:
-            st.error(f"Gagal membuka gambar upload: {e}")
-            image = None
-else:
-    camera_image = st.camera_input("Ambil gambar dari kamera")
-    if camera_image is not None:
-        try:
+    else:
+        camera_image = st.camera_input("Ambil gambar dari kamera")
+        if camera_image:
             image = Image.open(camera_image)
-            image.verify()
-            camera_image.seek(0)
-            image = Image.open(camera_image)
-        except UnidentifiedImageError:
-            st.error("Gambar kamera tidak valid.")
-            image = None
-        except Exception as e:
-            st.error(f"Gagal membuka gambar dari kamera: {e}")
-            image = None
 
-if image is not None:
-    st.image(image, caption="Gambar telah di identifikasi", use_column_width=True)
-
+    if image:
+        st.image(image, caption="Gambar telah di identifikasi", use_container_width=True)  # <-- Ini yang bikin gambar muncul di col1
 
 with col2:
     st.subheader("Hasil Prediksi")
 
     if image:
+        # proses prediksi dan tampilkan hasil saja, jangan tampilkan gambar di sini
         img_resized = image.resize((224, 224))
-        img_array = np.array(img_resized) / 255.0
-        img_array = img_array.astype(np.float32)  # pastikan float32
-        img_array = np.expand_dims(img_array, axis=0)
-        input_tensor = tf.convert_to_tensor(img_array)
-        
-        outputs = infer(input_tensor)
-        prediction = list(outputs.values())[0].numpy()
-        
+        img_array = np.expand_dims(np.array(img_resized) / 255.0, axis=0)
+
+        prediction = model.predict(img_array)
         predicted_class = class_names[np.argmax(prediction)]
         confidence = np.max(prediction) * 100
         filosofi = filosofi_dict.get(predicted_class, "Filosofi tidak ditemukan.")
@@ -237,8 +209,8 @@ with col2:
         st.markdown(f"<div style='text-align: justify; font-size: 0.95em; line-height: 1.7;'><strong>Filosofi Motif:</strong><br>{filosofi}</div>", unsafe_allow_html=True)
     else:
         st.info("Silakan unggah atau ambil gambar terlebih dahulu.")
-# -------------------- Footer --------------------
-st.markdown("""<div class="footer">© 2025 Caritaloka - All rights reserved</div>""", unsafe_allow_html=True)
+
+
 
 
 
