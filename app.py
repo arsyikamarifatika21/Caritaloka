@@ -206,41 +206,37 @@ if image is not None:
 with col2:
     st.subheader("Hasil Prediksi")
 
-    if image is not None:
-        try:
-            img_resized = image.resize((224, 224))
-            img_array = np.expand_dims(np.array(img_resized) / 255.0, axis=0)
+if image:
+    # Pastikan convert ke RGB dan resize
+    img_resized = image.resize((224, 224)).convert('RGB')
 
-            prediction = model.predict(img_array)
-            predicted_class = class_names[np.argmax(prediction)]
-            confidence = np.max(prediction) * 100
-            filosofi = filosofi_dict.get(predicted_class, "Filosofi tidak ditemukan.")
+    # Konversi ke numpy array float32 dan normalisasi ke [0,1]
+    img_array = np.array(img_resized).astype('float32') / 255.0
 
-            st.markdown(
-                f"<div style='font-size: 1.2em;'><strong>Motif Terdeteksi:</strong> {predicted_class}</div>",
-                unsafe_allow_html=True,
-            )
-            st.markdown(
-                f"<div style='font-size: 1em; color: gray;'><strong>Tingkat Keyakinan:</strong> {confidence:.2f}%</div>",
-                unsafe_allow_html=True,
-            )
+    # Tambahkan batch dimension
+    img_array = np.expand_dims(img_array, axis=0)
 
-            if confidence < 70:
-                st.warning(
-                    "⚠️ Keyakinan rendah. Silakan coba ulang dengan gambar yang lebih baik, dengan memperhatikan spesifikasi sebagai berikut:\n"
-                    "- Gunakan gambar batik yang fokus dan jelas.\n"
-                    "- Hindari kain terlipat atau kusut.\n"
-                    "- Jangan gunakan latar belakang yang ramai.\n"
-                    "- Ambil gambar dari jarak sedang, tidak terlalu dekat atau jauh.\n"
-                    "- Pastikan pencahayaan cukup dan merata."
-                )
-            st.markdown(
-                "<hr style='margin-top: 20px; margin-bottom: 10px;'>", unsafe_allow_html=True
-            )
-            st.markdown(
-                f"<div style='text-align: justify; font-size: 0.95em; line-height: 1.7;'><strong>Filosofi Motif:</strong><br>{filosofi}</div>",
-                unsafe_allow_html=True,
-            )
+    # Prediksi
+    prediction = model.predict(img_array)
+    predicted_class = class_names[np.argmax(prediction)]
+    confidence = np.max(prediction) * 100
+    filosofi = filosofi_dict.get(predicted_class, "Filosofi tidak ditemukan.")
+
+    st.markdown(f"<div style='font-size: 1.2em;'><strong>Motif Terdeteksi:</strong> {predicted_class}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='font-size: 1em; color: gray;'><strong>Tingkat Keyakinan:</strong> {confidence:.2f}%</div>", unsafe_allow_html=True)
+
+    if confidence < 70:
+       st.warning(
+        "⚠️ Keyakinan rendah. Silakan coba ulang dengan gambar yang lebih baik, dengan memperhatikan spesifikasi sebagai berikut:\n"
+        "- Gunakan gambar batik yang fokus dan jelas.\n"
+        "- Hindari kain terlipat atau kusut.\n"
+        "- Jangan gunakan latar belakang yang ramai.\n"
+        "- Ambil gambar dari jarak sedang, tidak terlalu dekat atau jauh.\n"
+        "- Pastikan pencahayaan cukup dan merata."
+    )
+    st.markdown("<hr style='margin-top: 20px; margin-bottom: 10px;'>", unsafe_allow_html=True)
+    st.markdown(f"<div style='text-align: justify; font-size: 0.95em; line-height: 1.7;'><strong>Filosofi Motif:</strong><br>{filosofi}</div>", unsafe_allow_html=True)
+
         except Exception as e:
             st.error(f"Terjadi kesalahan saat memproses gambar: {e}")
     else:
@@ -259,4 +255,5 @@ st.markdown(
 
 # -------------------- Footer --------------------
 st.markdown("""<div class="footer">© 2025 Caritaloka - All rights reserved</div>""", unsafe_allow_html=True)
+
 
