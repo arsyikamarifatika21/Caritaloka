@@ -166,9 +166,12 @@ with col1:
     st.subheader("Input Gambar")
 
     input_method = st.radio("Pilih Metode:", ["Upload Gambar", "Ambil dari Kamera"])
-    from PIL import Image, UnidentifiedImageError
-    image = None
-    if input_method == "Upload Gambar":
+
+from PIL import Image, UnidentifiedImageError
+
+image = None
+
+if input_method == "Upload Gambar":
     uploaded_file = st.file_uploader("Unggah gambar batik (.png/ lokatmala.png)", type=["png", "jpeg", "jpg"])
     if uploaded_file is not None:
         try:
@@ -182,8 +185,8 @@ with col1:
         except Exception as e:
             st.error(f"Gagal membuka gambar upload: {e}")
             image = None
-    else:
-        camera_image = st.camera_input("Ambil gambar dari kamera")
+else:
+    camera_image = st.camera_input("Ambil gambar dari kamera")
     if camera_image is not None:
         try:
             image = Image.open(camera_image)
@@ -199,6 +202,7 @@ with col1:
 
 if image is not None:
     st.image(image, caption="Gambar telah di identifikasi", use_column_width=True)
+
 
 with col2:
     st.subheader("Hasil Prediksi")
@@ -235,13 +239,3 @@ with col2:
         st.info("Silakan unggah atau ambil gambar terlebih dahulu.")
 # -------------------- Footer --------------------
 st.markdown("""<div class="footer">© 2025 Caritaloka - All rights reserved</div>""", unsafe_allow_html=True)
-
-
-
-
-
-
-
-
-
-
