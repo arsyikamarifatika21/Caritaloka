@@ -211,7 +211,8 @@ with col2:
         img_resized = image.resize((224, 224))
         img_array = np.expand_dims(np.array(img_resized) / 255.0, axis=0)
 
-        prediction = model.predict(img_array)
+        outputs = infer(tf.convert_to_tensor(img_array))
+        prediction = list(outputs.values())[0].numpy()
         predicted_class = class_names[np.argmax(prediction)]
         confidence = np.max(prediction) * 100
         filosofi = filosofi_dict.get(predicted_class, "Filosofi tidak ditemukan.")
@@ -234,6 +235,7 @@ with col2:
         st.info("Silakan unggah atau ambil gambar terlebih dahulu.")
 # -------------------- Footer --------------------
 st.markdown("""<div class="footer">© 2025 Caritaloka - All rights reserved</div>""", unsafe_allow_html=True)
+
 
 
 
