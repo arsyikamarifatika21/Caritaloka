@@ -125,6 +125,7 @@ def load_model():
     return tf.keras.models.load_model("Lokatmala_saved")  # <-- Ganti ke folder SavedModel
 
 model = load_model()
+infer = model.signatures["serving_default"]
 
 # Label kelas (urutan harus sama dengan model)
 class_names = [
@@ -233,6 +234,7 @@ with col2:
         st.info("Silakan unggah atau ambil gambar terlebih dahulu.")
 # -------------------- Footer --------------------
 st.markdown("""<div class="footer">© 2025 Caritaloka - All rights reserved</div>""", unsafe_allow_html=True)
+
 
 
 
