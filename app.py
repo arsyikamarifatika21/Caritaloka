@@ -107,10 +107,10 @@ def add_shadow_banner(image_path):
     }}
     </style>
 
-    <div class="shadow-header">
-        <h1>CARITALOKA</h1>
-        <p style="font-size: 1.1em;">Identifikasi Motif dan Filosofi Kain Batik Lokatmala</p>
-    </div>
+    <div class="shadow-header" style="color: white;">
+    <h1>CARITALOKA</h1>
+    <p style="font-size: 1.1em;">Identifikasi Motif dan Filosofi Kain Batik Lokatmala</p>
+</div> 
     """
     st.markdown(banner_html, unsafe_allow_html=True)
 
@@ -239,6 +239,7 @@ with col2:
         st.info("Silakan unggah atau ambil gambar terlebih dahulu.")
 # -------------------- Footer --------------------
 st.markdown("""<div class="footer">© 2025 Caritaloka - All rights reserved</div>""", unsafe_allow_html=True)
+
 
 
 
