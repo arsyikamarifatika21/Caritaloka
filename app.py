@@ -90,32 +90,33 @@ def add_shadow_banner(image_path):
     bg_base64 = base64.b64encode(bg_data).decode()
 
     banner_html = f"""
-<style>
-.shadow-header {{
-    position: relative;
-    background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
-                url("data:image/png;base64,{bg_base64}");
-    background-size: cover;
-    background-position: center;
-    border-radius: 16px;
-    padding: 60px 30px 40px 30px;
-    margin-bottom: 30px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-    color: white;
-    text-align: center;
-    text-shadow: 2px 2px 6px rgba(0,0,0,0.7);
-}}
+    <style>
+    .shadow-header {{
+        position: relative;
+        background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+                    url("data:image/png;base64,{bg_base64}");
+        background-size: cover;
+        background-position: center;
+        border-radius: 16px;
+        padding: 60px 30px 40px 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+        color: white;
+        text-align: center;
+        text-shadow: 2px 2px 6px rgba(0,0,0,0.7);
+    }}
+    /* Khusus untuk tulisan CARITALOKA */
+    .shadow-header h1 {{
+        color: white !important;
+    }}
+    </style>
 
-.shadow-header h1 {{
-    color: white !important;
-}}
-</style>
-
-<div class="shadow-header">
-      <h1>CARITALOKA</h1>
-      <p style="font-size: 1.1em;">Identifikasi Motif dan Filosofi Kain Batik Lokatmala</p>
-  </div>
-"""
+    <div class="shadow-header">
+        <h1>CARITALOKA</h1>
+        <p style="font-size: 1.1em;">Identifikasi Motif dan Filosofi Kain Batik Lokatmala</p>
+    </div>
+    """
+    st.markdown(banner_html, unsafe_allow_html=True)
 
 # -------------------- Panggilan Semua Komponen --------------------
 add_custom_css()
@@ -243,4 +244,5 @@ with col2:
 
 # -------------------- Footer --------------------
 st.markdown("""<div class="footer">© 2025 Caritaloka - All rights reserved</div>""", unsafe_allow_html=True)
+
 
