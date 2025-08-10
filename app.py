@@ -167,42 +167,42 @@ with col1:
 
     input_method = st.radio("Pilih Metode:", ["Upload Gambar", "Ambil dari Kamera"])
 
-from PIL import Image, UnidentifiedImageError
+    from PIL import Image, UnidentifiedImageError
 
-image = None
+    image = None
 
-if input_method == "Upload Gambar":
-    uploaded_file = st.file_uploader("Unggah gambar batik (.png/ lokatmala.png)", type=["png", "jpeg", "jpg"])
-    if uploaded_file is not None:
-        try:
-            image = Image.open(uploaded_file)
-            image.verify()  # Validasi image
-            uploaded_file.seek(0)  # Reset pointer setelah verify
-            image = Image.open(uploaded_file)  # reload image setelah verify
-        except UnidentifiedImageError:
-            st.error("File yang diunggah bukan gambar yang valid.")
-            image = None
-        except Exception as e:
-            st.error(f"Gagal membuka gambar upload: {e}")
-            image = None
-else:
-    camera_image = st.camera_input("Ambil gambar dari kamera")
-    if camera_image is not None:
-        try:
-            image = Image.open(camera_image)
-            image.verify()
-            camera_image.seek(0)
-            image = Image.open(camera_image)
-        except UnidentifiedImageError:
-            st.error("Gambar kamera tidak valid.")
-            image = None
-        except Exception as e:
-            st.error(f"Gagal membuka gambar dari kamera: {e}")
-            image = None
+    if input_method == "Upload Gambar":
+        uploaded_file = st.file_uploader("Unggah gambar batik (.png/ lokatmala.png)", type=["png", "jpeg", "jpg"])
+        if uploaded_file is not None:
+            try:
+                image = Image.open(uploaded_file)
+                image.verify()  # Validasi image
+                uploaded_file.seek(0)  # Reset pointer setelah verify
+                image = Image.open(uploaded_file)  # reload image setelah verify
+            except UnidentifiedImageError:
+                st.error("File yang diunggah bukan gambar yang valid.")
+                image = None
+            except Exception as e:
+                st.error(f"Gagal membuka gambar upload: {e}")
+                image = None
+    else:
+        camera_image = st.camera_input("Ambil gambar dari kamera")
+        if camera_image is not None:
+            try:
+                image = Image.open(camera_image)
+                image.verify()
+                camera_image.seek(0)
+                image = Image.open(camera_image)
+            except UnidentifiedImageError:
+                st.error("Gambar kamera tidak valid.")
+                image = None
+            except Exception as e:
+                st.error(f"Gagal membuka gambar dari kamera: {e}")
+                image = None
 
-if image is not None:
-    st.image(image, caption="Gambar telah di identifikasi", use_column_width=True)
-
+    # **Pindahkan st.image ke dalam col1, agar gambar hanya di kolom 1**
+    if image is not None:
+        st.image(image, caption="Gambar telah di identifikasi", use_column_width=True)
 
 with col2:
     st.subheader("Hasil Prediksi")
@@ -225,17 +225,18 @@ with col2:
         st.markdown(f"<div style='font-size: 1em; color: gray;'><strong>Tingkat Keyakinan:</strong> {confidence:.2f}%</div>", unsafe_allow_html=True)
 
         if confidence < 70:
-           st.warning(
-        "⚠️ Keyakinan rendah. Silakan coba ulang dengan gambar yang lebih baik, dengan memperhatikan spesifikasi sebagai berikut:\n"
-        "- Gunakan gambar batik yang fokus dan jelas.\n"
-        "- Hindari kain terlipat atau kusut.\n"
-        "- Jangan gunakan latar belakang yang ramai.\n"
-        "- Ambil gambar dari jarak sedang, tidak terlalu dekat atau jauh.\n"
-        "- Pastikan pencahayaan cukup dan merata."
-    )
+            st.warning(
+                "⚠️ Keyakinan rendah. Silakan coba ulang dengan gambar yang lebih baik, dengan memperhatikan spesifikasi sebagai berikut:\n"
+                "- Gunakan gambar batik yang fokus dan jelas.\n"
+                "- Hindari kain terlipat atau kusut.\n"
+                "- Jangan gunakan latar belakang yang ramai.\n"
+                "- Ambil gambar dari jarak sedang, tidak terlalu dekat atau jauh.\n"
+                "- Pastikan pencahayaan cukup dan merata."
+            )
         st.markdown("<hr style='margin-top: 20px; margin-bottom: 10px;'>", unsafe_allow_html=True)
         st.markdown(f"<div style='text-align: justify; font-size: 0.95em; line-height: 1.7;'><strong>Filosofi Motif:</strong><br>{filosofi}</div>", unsafe_allow_html=True)
     else:
         st.info("Silakan unggah atau ambil gambar terlebih dahulu.")
+
 # -------------------- Footer --------------------
 st.markdown("""<div class="footer">© 2025 Caritaloka - All rights reserved</div>""", unsafe_allow_html=True)
