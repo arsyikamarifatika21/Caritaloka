@@ -243,6 +243,7 @@ with col2:
         st.info("Silakan unggah atau ambil gambar terlebih dahulu.")
 
 # -------------------- Footer --------------------
-st.markdown("""<div class="footer">© 2025 Caritaloka - All rights reserved</div>""", unsafe_allow_html=True)
+st.markdown("""<div class="footer">© 2025 Arsyika Ma'rifatika</div>""", unsafe_allow_html=True)
+
 
 
